@@ -10,6 +10,7 @@ body{font-family:Arial;text-align:center;background:#f4f4f4}
 #reader{width:320px;margin:auto}
 #result{margin-top:20px;font-size:20px;background:white;padding:20px;border-radius:10px}
 </style>
+
 </head>
 
 <body>
@@ -26,33 +27,27 @@ let attendees={};
 fetch("./attendees.json")
 .then(r=>r.json())
 .then(data=>{
-  data.forEach(p=>attendees[p.ID]=p);
+data.forEach(p=>attendees[p.ID]=p);
 });
 
 function onScanSuccess(decodedText){
 
-  let id=decodedText.replace("ID:","").trim();
-  let p=attendees[id];
+let id=decodedText.replace("ID:","").trim();
+let p=attendees[id];
 
-  if(p){
+if(p){
 
-    fetch("https://script.google.com/macros/s/AKfycbxYwLehoUHn67A_AUoU11p810Aa0b0EILIm0UBMoHV9HEvgQmM7yLjgdm020jh67PbuEw/exec",{
-      method:"POST",
-      body: JSON.stringify({
-        name:p.Name,
-        department:p.Department,
-        city:p.City
-      })
-    });
+document.getElementById("result").innerHTML=
+"<b>"+p.Name+"</b><br>"+
+"Department: "+p.Department+"<br>"+
+"City: "+p.City+"<br><span style='color:green'>✔ Allowed</span>";
 
-    document.getElementById("result").innerHTML=
-      "<b>"+p.Name+"</b><br>"+
-      "Department: "+p.Department+"<br>"+
-      "City: "+p.City+"<br><span style='color:green'>✔ Allowed</span>";
+}else{
 
-  }else{
-    document.getElementById("result").innerHTML="<span style='color:red'>Unknown QR</span>";
-  }
+document.getElementById("result").innerHTML=
+"<span style='color:red'>Unknown QR</span>";
+
+}
 
 }
 

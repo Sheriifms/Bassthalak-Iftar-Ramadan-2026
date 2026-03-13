@@ -36,7 +36,14 @@ let id=decodedText.replace("ID:","").trim();
 let p=attendees[id];
 
 if(p){
-
+fetch("https://script.google.com/macros/s/AKfycbxYwlehoUhN67A_AUoUl1p810aA0b0ElLIm0UBMoHV9HEVgQmM7yLJqdm02Ojh6Y7buEw/exec",{
+method:"POST",
+body: JSON.stringify({
+name:p.Name,
+department:p.Department,
+city:p.City
+})
+});
 document.getElementById("result").innerHTML=
 "<b>"+p.Name+"</b><br>"+
 "Department: "+p.Department+"<br>"+

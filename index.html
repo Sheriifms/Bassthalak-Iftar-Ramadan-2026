@@ -3,12 +3,38 @@
 <head>
 <meta charset="utf-8">
 <title>Event QR Check-in</title>
+
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body{font-family:Arial;text-align:center;background:#f4f4f4}
-#reader{width:320px;margin:auto}
-#result{margin-top:20px;font-size:20px;background:white;padding:20px;border-radius:10px}
+
+body{
+font-family:Arial;
+text-align:center;
+background:#f4f4f4
+}
+
+#reader{
+width:320px;
+margin:auto
+}
+
+#result{
+margin-top:20px;
+font-size:20px;
+background:white;
+padding:20px;
+border-radius:10px
+}
+
+.counter{
+background:white;
+padding:10px;
+margin:10px;
+border-radius:8px;
+font-size:18px
+}
+
 </style>
 
 </head>
@@ -17,23 +43,36 @@ body{font-family:Arial;text-align:center;background:#f4f4f4}
 
 <h2>Event QR Check-in</h2>
 
+<div class="counter" id="counter">Checked-in: 0</div>
+<div class="counter" id="cairo">Cairo: 0</div>
+<div class="counter" id="ismailia">Ismailia: 0</div>
+
 <div id="reader"></div>
+
 <div id="result">Scan a QR code</div>
 
 <script>
 
-let attendees={};
+let attendees={}
+let checked={}
+
+let cairoCount=0
+let ismailiaCount=0
+
 
 fetch("./attendees.json")
 .then(r=>r.json())
 .then(data=>{
-data.forEach(p=>attendees[p.ID]=p);
-});
+data.forEach(p=>attendees[p.ID]=p)
+})
+
 
 function onScanSuccess(decodedText){
 
-let id=decodedText.replace("ID:","").trim();
-let p=attendees[id];
+let id=decodedText.replace("ID:","").trim()
+
+let p=attendees[id]
+
 
 if(!p){
 
@@ -41,7 +80,9 @@ document.getElementById("result").innerHTML=
 "<span style='color:red'>Unknown QR</span>"
 
 return
+
 }
+
 
 if(checked[id]){
 
@@ -49,27 +90,76 @@ document.getElementById("result").innerHTML=
 "<span style='color:red'>Already Checked-in</span><br>"+p.Name
 
 return
+
 }
+
 
 checked[id]=true
 
+
+// تحديث العداد الإجمالي
+
+document.getElementById("counter").innerText=
+"Checked-in: "+Object.keys(checked).length
+
+
+
+// حساب Cairo و Ismailia
+
+if(p.City.toLowerCase()=="cairo"){
+
+cairoCount++
+
+document.getElementById("cairo").innerText=
+"Cairo: "+cairoCount
+
+}
+
+
+if(p.City.toLowerCase()=="ismailia"){
+
+ismailiaCount++
+
+document.getElementById("ismailia").innerText=
+"Ismailia: "+ismailiaCount
+
+}
+
+
+
+// تسجيل في Google Sheet
+
 fetch("https://script.google.com/macros/s/AKfycbxYwlehoUhN67A_AUoUl1p810aA0b0ElLIm0UBMoHV9HEVgQmM7yLJqdm02Ojh6Y7buEw/exec",{
+
 method:"POST",
+
 body: JSON.stringify({
+
 name:p.Name,
 department:p.Department,
 city:p.City
-})
+
 })
 
+})
+
+
+
 document.getElementById("result").innerHTML=
+
 "<b>"+p.Name+"</b><br>"+
 "Department: "+p.Department+"<br>"+
 "City: "+p.City+"<br><span style='color:green'>✔ Allowed</span>"
 
 }
 
+
+
 let scanner=new Html5QrcodeScanner("reader",{fps:10,qrbox:250})
+
 scanner.render(onScanSuccess)
 
 </script>
+
+</body>
+</html>

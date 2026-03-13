@@ -35,7 +35,24 @@ function onScanSuccess(decodedText){
 let id=decodedText.replace("ID:","").trim();
 let p=attendees[id];
 
-if(p){
+if(!p){
+
+document.getElementById("result").innerHTML=
+"<span style='color:red'>Unknown QR</span>"
+
+return
+}
+
+if(checked[id]){
+
+document.getElementById("result").innerHTML=
+"<span style='color:red'>Already Checked-in</span><br>"+p.Name
+
+return
+}
+
+checked[id]=true
+
 fetch("https://script.google.com/macros/s/AKfycbxYwlehoUhN67A_AUoUl1p810aA0b0ElLIm0UBMoHV9HEVgQmM7yLJqdm02Ojh6Y7buEw/exec",{
 method:"POST",
 body: JSON.stringify({
@@ -43,25 +60,16 @@ name:p.Name,
 department:p.Department,
 city:p.City
 })
-});
+})
+
 document.getElementById("result").innerHTML=
 "<b>"+p.Name+"</b><br>"+
 "Department: "+p.Department+"<br>"+
-"City: "+p.City+"<br><span style='color:green'>✔ Allowed</span>";
-
-}else{
-
-document.getElementById("result").innerHTML=
-"<span style='color:red'>Unknown QR</span>";
+"City: "+p.City+"<br><span style='color:green'>✔ Allowed</span>"
 
 }
 
-}
-
-let scanner=new Html5QrcodeScanner("reader",{fps:10,qrbox:250});
-scanner.render(onScanSuccess);
+let scanner=new Html5QrcodeScanner("reader",{fps:10,qrbox:250})
+scanner.render(onScanSuccess)
 
 </script>
-
-</body>
-</html>
